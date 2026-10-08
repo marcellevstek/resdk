@@ -591,9 +591,10 @@ class QCTables(BaseTables):
             return {}
 
         # Query in batches: a single query with all ids exceeds the URL length
-        # limit on large collections.
+        # limit on large collections. A batch matches at most batch_size
+        # objects, so each one is fetched in a single request.
         all_input_ids = sorted(all_input_ids)
-        batch_size = 100
+        batch_size = 250
         reads_output = {}
         for i in range(0, len(all_input_ids), batch_size):
             reads_output.update(
@@ -602,7 +603,7 @@ class QCTables(BaseTables):
                     id__in=all_input_ids[i : i + batch_size],
                     type="data:reads:fastq:",
                     fields=["id", "output"],
-                ).iterate()
+                )
             )
 
         mate_groups = {}
